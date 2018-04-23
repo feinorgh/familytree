@@ -18,8 +18,10 @@ familytree: $(OBJ)
 clean:
 	rm -f $(obj) familytree src/*.o
 
-cleandep:
+depclean:
 	rm -f $(DEP)
+
+distclean: clean depclean
 
 install: familytree
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
