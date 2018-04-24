@@ -1,10 +1,8 @@
 PREFIX=/usr/local
-CFLAGS+=-Wall
+CFLAGS+=-Wall -Wextra
 SRC = $(wildcard src/*.c)
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
-
-LDFLAGS = -lz -lm
 
 familytree: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
