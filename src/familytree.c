@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "f_random.h"
 
 #define LENGTH(array) ( sizeof array / sizeof array[0] )
 
@@ -20,10 +21,10 @@ describe(individual i) {
     printf("Name: %s %s\n", i.firstname, i.surname);
     printf(" Sex: ");
     if ( i.sex < 0 ) {
-        printf("female");
+        printf("female (%f)", i.sex);
     }
     else {
-        printf("male");
+        printf("male (%f)", i.sex);
     }
     printf("\nHeight: %0.2f m, Weight: %0.2f kg", i.height, i.weight);
     printf("\n\n");
@@ -41,7 +42,7 @@ get_random_firstname(float sex) {
     };
     char **names;
     unsigned short int len = 0;
-    if ( sex < 1.0 ) {
+    if ( sex < 0.0 ) {
         names = fnames;
         len   = LENGTH(fnames);
     }
@@ -63,39 +64,47 @@ get_random_surname() {
 }
 
 float
-get_random_height() {
-    return 0.8f + (float)rand() / ((float)RAND_MAX + 1) * 1.2f;
+get_random_height(float sex) {
+    float average_height = 1.778f;
+    if ( sex < 0.0 ) {
+        average_height /= 1.08;
+    }
+    return average_height + ((float)rand() / ((float)RAND_MAX + 1) - 0.5) * 0.65;
 }
 
 float
-get_random_weight() {
-    return 40.0 + (float)rand() / ((float)RAND_MAX + 1) * 40.0;
+get_random_weight(float height) {
+    float bmi = 15.0 + (float)rand() / ((float)RAND_MAX + 1) * 25.0;
+    return bmi * height * height;
 }
 
 int
 main(int argc, char *argv[])
 {
     srand(time(NULL));
-    individual Adam = {
-        .sex = 1.0, .firstname = get_random_firstname(1.0f),
-        .surname = get_random_surname(),
-        .height = get_random_height(),
-        .weight = get_random_weight(),
-    };
-    individual Eve = {
-        .sex = -1.0, .firstname = get_random_firstname(-1.0f),
-        .surname = get_random_surname(),
-        .height = get_random_height(),
-        .weight = get_random_weight(),
-    };
-    /*
-     * int generations = 1000;
-    int current_generation = 0;
-    while ( current_generation < generations ) {
-        current_generation++;
+    float tmp_h, tmp_s;
+    float real_average_height = 0.0;
+    for (int i = 0; i < 10000; i++) {
+        tmp_s = (float)rand() / ((float)RAND_MAX + 1) - 0.5f;
+        tmp_h = get_random_height(tmp_s);
+        individual tmp_i = {
+            .sex = tmp_s,
+            .firstname = get_random_firstname(tmp_s),
+            .surname = get_random_surname(),
+            .height = tmp_h,
+            .weight = get_random_weight(tmp_h),
+        };
+        describe(tmp_i);
+        if ( real_average_height == 0 ) {
+            real_average_height = tmp_i.height;
+        }
+        else {
+            real_average_height = (tmp_i.height + real_average_height) / 2.0;
+        }
     }
-    */
-    describe(Adam);
-    describe(Eve);
+    printf("Average height: %0.2f m\n", real_average_height);
+    unsigned int n;
+    get_random(&n, sizeof n);
+    printf("%u\n", n);
     return 0;
 }
