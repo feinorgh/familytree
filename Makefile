@@ -1,20 +1,31 @@
 PREFIX=/usr/local
 CFLAGS+=-Wall -Wextra
-SRC = $(wildcard src/*.c)
-OBJ = $(SRC:.c=.o)
+LDFLAGS+=-lm
+SRCDIR = src
+SOURCES = $(wildcard $(SRCDIR)/*.c)
+HEADERS = $(wildcard $(SRCDIR)/*.h)
+OBJDIR = $(BUILD_PREFIX)obj
+_OBJS = $(SOURCES:src/%.c=%.o)
+OBJECTS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 DEP = $(OBJ:.o=.d)
 
-familytree: $(OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS)
+familytree: $(OBJDIR) $(OBJECTS)
+	$(CC) -o familytree $(OBJECTS) $(LDFLAGS)
 
 -include $(DEP)
 %.d: %.c
 	@$(CPP) $(CFLAGS) $< -MM -MT $(@:.d=.o) >$@
 
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) $(DEFINES) -c $< -o $@
+
 .PHONY: clean cleandep install uninstall
 
 clean:
-	rm -f $(obj) familytree src/*.o
+	rm -rf $(obj) familytree obj
 
 depclean:
 	rm -f $(DEP)
