@@ -1,6 +1,6 @@
 PREFIX=/usr/local
 CFLAGS+=-Wall -Wextra
-LDFLAGS+=-lm
+LDFLAGS+=
 SRCDIR = src
 SOURCES = $(wildcard $(SRCDIR)/*.c)
 HEADERS = $(wildcard $(SRCDIR)/*.h)
