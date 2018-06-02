@@ -1,6 +1,8 @@
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 #include "f_random.h"
 
 #define LENGTH(array) ( sizeof array / sizeof array[0] )
@@ -15,6 +17,7 @@ typedef struct {
     struct individual *mother;
     struct individual *father;
 } individual;
+
 
 void
 describe(individual i) {
@@ -81,10 +84,41 @@ get_random_weight(float height) {
 int
 main(int argc, char *argv[])
 {
+    int sample_size = 1;
+    int c;
+    while (1) {
+        int option_index = 0;
+        static struct option long_options[] = {
+            {"help",    no_argument,       0, 0 },
+            {"samples", required_argument, 0, 0},
+            {0,      0,                    0, 0 },
+        };
+
+        c = getopt_long(argc, argv, "hs:", long_options, &option_index);
+        if ( c == -1 ) {
+            break;
+        }
+        switch (c) {
+            case 'h':
+                printf("Request for help\n");
+                break;
+
+            case 's':
+                sample_size = atoi(optarg);
+                break;
+
+            case '?':
+                break;
+
+            default:
+                printf("?? getopt returned character code 0%o ??\n", c);
+        }
+    }
+
     srand(time(NULL));
     float tmp_h, tmp_s;
     float real_average_height = 0.0;
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < sample_size; i++) {
         tmp_s = (float)rand() / ((float)RAND_MAX + 1) - 0.5f;
         tmp_h = get_random_height(tmp_s);
         individual tmp_i = {
