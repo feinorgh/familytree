@@ -1,19 +1,18 @@
 PREFIX=/usr/local
-CFLAGS+=-Wall -Wextra
+CFLAGS+=-Wall -Wextra -MMD -MP
 LDFLAGS+=
 SRCDIR = src
 SOURCES = $(wildcard $(SRCDIR)/*.c)
-HEADERS = $(wildcard $(SRCDIR)/*.h)
 OBJDIR = $(BUILD_PREFIX)obj
 _OBJS = $(SOURCES:src/%.c=%.o)
 OBJECTS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 DEP = $(OBJECTS:.o=.d)
 
-familytree: $(OBJDIR) $(OBJECTS)
-	$(CC) -o familytree $(OBJECTS) $(LDFLAGS)
+familytree: $(OBJECTS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-%.d: %.c
-	@$(CPP) $(CFLAGS) $< -MM -MT $(@:.d=.o) >$@
+
+$(OBJECTS): $(OBJDIR)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
@@ -37,3 +36,5 @@ install: familytree
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/familytree
+
+-include $(DEP)
