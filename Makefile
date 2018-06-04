@@ -7,12 +7,11 @@ HEADERS = $(wildcard $(SRCDIR)/*.h)
 OBJDIR = $(BUILD_PREFIX)obj
 _OBJS = $(SOURCES:src/%.c=%.o)
 OBJECTS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
-DEP = $(OBJ:.o=.d)
+DEP = $(OBJECTS:.o=.d)
 
 familytree: $(OBJDIR) $(OBJECTS)
 	$(CC) -o familytree $(OBJECTS) $(LDFLAGS)
 
--include $(DEP)
 %.d: %.c
 	@$(CPP) $(CFLAGS) $< -MM -MT $(@:.d=.o) >$@
 
