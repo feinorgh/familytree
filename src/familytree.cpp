@@ -1,69 +1,49 @@
 #include <getopt.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#include "f_random.h"
-
-#define LENGTH(array) ( sizeof array / sizeof array[0] )
-
-typedef struct {
-    float sex;          /* -1.0 = female, 1.0 = male */
-    unsigned int age;   /* seconds */
-    float height;       /* metres */
-    float weight;       /* kilograms */
-    char *firstname;
-    char *surname;
-    struct individual *mother;
-    struct individual *father;
-} individual;
-
+#include <string>
+#include <iostream>
+#include <vector>
+#include "individual.hpp"
 
 void
-describe(individual i) {
-    printf("Name: %s %s\n", i.firstname, i.surname);
-    printf(" Sex: ");
-    if ( i.sex < 0 ) {
-        printf("female (%f)", i.sex);
+describe(Individual i) {
+    std::cout << "Name: " << i.get_firstname() << " " << i.get_surname() << "\n";
+    std::cout << " Sex: ";
+    if ( i.get_sex() < 0 ) {
+        std::cout << "female (" << i.get_sex() << ")";
     }
     else {
-        printf("male (%f)", i.sex);
+        std::cout << "male (" << i.get_sex() << ")";
     }
-    printf("\nHeight: %0.2f m, Weight: %0.2f kg", i.height, i.weight);
-    printf("\n\n");
+    std::cout << "Height: " << i.get_height() << "m, Weight: " << i.get_weight() << " kg" << std::endl;
 }
 
-char *
+std::string
 get_random_firstname(float sex) {
-    char *mnames[] = {
+    std::vector <std::string> mnames = {
         "Oliver", "George", "Harry", "Jack", "Jacob", "Noah", "Charlie", "Muhammad",
         "Thomas", "Oscar",
     };
-    char *fnames[] = {
+    std::vector <std::string> fnames = {
         "Olivia", "Amelia", "Emily", "Isla", "Ava", "Jessica", "Isabella", "Lily",
         "Ella", "Mia",
     };
-    char **names;
-    unsigned short int len = 0;
     if ( sex < 0.0 ) {
-        names = fnames;
-        len   = LENGTH(fnames);
+        return fnames[rand() % fnames.size()];
     }
-    else {
-        names = mnames;
-        len   = LENGTH(mnames);
-    }
-    return names[(short int)(rand() / ((float)RAND_MAX + 1) * len)];
+    return mnames[rand() % mnames.size()];
 }
 
-char *
+std::string
 get_random_surname() {
-    char *surnames[] = {
+    std::vector <std::string> surnames = {
         "Smith", "Jones", "Taylor", "Brown", "Williams", "Wilson", "Johson", "Davies",
         "Robinson", "Wright", "Thompson", "Evans", "Walker", "White", "Roberts",
         "Green", "Hall", "Wood", "Jackson", "Clarke",
     };
-    return surnames[(int)(rand() / ((float)RAND_MAX + 1) * LENGTH(surnames))];
+    return surnames[rand() % surnames.size()];
 }
 
 float
@@ -116,29 +96,13 @@ main(int argc, char *argv[])
     }
 
     srand(time(NULL));
-    float tmp_h, tmp_s;
-    float real_average_height = 0.0;
+    float tmp_s;
     for (int i = 0; i < sample_size; i++) {
         tmp_s = (float)rand() / ((float)RAND_MAX + 1) - 0.5f;
-        tmp_h = get_random_height(tmp_s);
-        individual tmp_i = {
-            .sex = tmp_s,
-            .firstname = get_random_firstname(tmp_s),
-            .surname = get_random_surname(),
-            .height = tmp_h,
-            .weight = get_random_weight(tmp_h),
-        };
-        describe(tmp_i);
-        if ( real_average_height == 0 ) {
-            real_average_height = tmp_i.height;
-        }
-        else {
-            real_average_height = (tmp_i.height + real_average_height) / 2.0;
-        }
+        Individual p1 { tmp_s };
+        p1.set_height(get_random_height(tmp_s));
+        p1.set_weight(get_random_weight(p1.get_height()));
+        describe(p1);
     }
-    printf("Average height: %0.2f m\n", real_average_height);
-    unsigned int n;
-    get_random(&n, sizeof n);
-    printf("%u\n", n);
     return 0;
 }

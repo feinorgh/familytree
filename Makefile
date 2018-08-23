@@ -1,15 +1,16 @@
 PREFIX=/usr/local
 CFLAGS+=-Wall -Wextra -MMD -MP
+CPPFLAGS=$(CFLAGS)
 LDFLAGS+=
 SRCDIR = src
-SOURCES = $(wildcard $(SRCDIR)/*.c)
+SOURCES = $(wildcard $(SRCDIR)/*.cpp)
 OBJDIR = $(BUILD_PREFIX)obj
-_OBJS = $(SOURCES:src/%.c=%.o)
+_OBJS = $(SOURCES:src/%.cpp=%.o)
 OBJECTS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 DEP = $(OBJECTS:.o=.d)
 
 familytree: $(OBJECTS)
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 
 $(OBJECTS): $(OBJDIR)
@@ -17,8 +18,8 @@ $(OBJECTS): $(OBJDIR)
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) $(DEFINES) -c $< -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CC) $(CPPFLAGS) $(DEFINES) -c $< -o $@
 
 .PHONY: clean cleandep install uninstall
 
