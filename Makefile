@@ -1,5 +1,5 @@
 PREFIX=/usr/local
-CFLAGS+=-Wall -Wextra -MMD -MP
+CFLAGS+=-Wall -Wextra -MMD -MP -fPIC
 CPPFLAGS=$(CFLAGS)
 LDFLAGS+=
 SRCDIR = src
